@@ -1,1 +1,1 @@
-# alexandrovsk.github.com
+# alexandrovsk.github.io
