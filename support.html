@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Служба поддержки</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+
+    nav {
+      background: #1a1a1a;
+      padding: 15px 20px;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 20px;
+      margin: 0;
+      padding: 0;
+    }
+
+    nav ul li a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.3s;
+    }
+
+    nav ul li a.active, nav ul li a:hover {
+      color: #ffd700;
+    }
+
+    .content {
+      max-width: 600px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+
+    .content h1 {
+      margin-top: 0;
+      color: #1a1a1a;
+      text-align: center;
+    }
+
+    .content p {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #555;
+    }
+
+    .support-form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .support-form input,
+    .support-form select,
+    .support-form textarea {
+      padding: 12px 15px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+      width: 100%;
+      box-sizing: border-box;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .support-form input:focus,
+    .support-form select:focus,
+    .support-form textarea:focus {
+      border-color: #ffd700;
+      box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+      outline: none;
+    }
+
+    .support-form button {
+      padding: 15px;
+      border: none;
+      border-radius: 10px;
+      background: #ffd700;
+      color: #1a1a1a;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    .support-form button:hover {
+      background: #e6c200;
+      transform: translateY(-2px);
+    }
+
+    .response {
+      text-align: center;
+      font-weight: 600;
+      margin-top: 15px;
+    }
+
+    .contacts {
+      max-width: 600px;
+      margin: 30px auto;
+      text-align: center;
+      color: #555;
+    }
+
+    .contacts h2 {
+      margin-bottom: 10px;
+    }
+
+    @media (max-width: 650px) {
+      .content, .contacts {
+        margin: 20px;
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Навигация -->
+  <nav>
+    <ul>
+      
+      <li><a href="index.html">Главная</a></li>
+      <li><a href="about.html">О нас</a></li>
+      <li><a href="news.html">Новости</a></li>
+      <li><a href="support.html" class="active">Служба поддержки</a></li>
+    </ul>
+  </nav>
+
+  <!-- Контент -->
+  <div class="content">
+    <h1>Служба поддержки</h1>
+    <p>Выберите категорию и оставьте сообщение. Мы обязательно ответим!</p>
+
+    <!-- Форма -->
+    <form id="support-form" class="support-form">
+      <input type="email" name="email" id="user-email" placeholder="Ваш Email" required>
+
+      <select name="category" id="category" required>
+        <option value="">Выберите категорию</option>
+        <option value="question">Вопросы: У меня есть вопрос</option>
+        <option value="appeal">Апелляция модерации: Меня неправильно заблокировали</option>
+      </select>
+
+      <input type="text" name="social" id="social" placeholder="Социальная сеть (Telegram, Roblox...)" style="display:none;">
+
+      <textarea name="message" id="user-message" placeholder="Ваше сообщение" required rows="5"></textarea>
+
+      <button type="submit">Отправить</button>
+    </form>
+
+    <p id="response" class="response"></p>
+  </div>
+
+  <!-- Контакты -->
+  <div class="contacts">
+    <h2>Контакты</h2>
+    <p>Telegram: @AlexanderLim2013</p>
+  </div>
+
+<script>
+const category = document.getElementById('category');
+const social = document.getElementById('social');
+const form = document.getElementById('support-form');
+const response = document.getElementById('response');
+
+// Показать поле соцсети только при апелляции
+category.addEventListener('change', () => {
+  if(category.value === 'appeal'){
+    social.style.display = 'block';
+    social.setAttribute('required', 'true');
+  } else {
+    social.style.display = 'none';
+    social.removeAttribute('required');
+  }
+});
+
+// AJAX отправка формы
+form.addEventListener('submit', function(e){
+  e.preventDefault();
+  const formData = new FormData(form);
+
+  // Проверка соцсети при апелляции
+  if(category.value === 'appeal' && !social.value.trim()){
+    response.textContent = "Пожалуйста, укажите социальную сеть для апелляции.";
+    response.style.color = "red";
+    return;
+  }
+
+  // Отправка формы
+  fetch('send.php', {
+    method: 'POST',
+    body: formData
+  })
+  .then(res => res.text())
+  .then(data => {
+    // Если mail отправлен успешно
+    if(data.toLowerCase().includes('отправлено')){
+      response.textContent = "Запрос отправлен!";
+      response.style.color = "green";
+    } else {
+      response.textContent = "Произошла ошибка, попробуйте повторно позже.";
+      response.style.color = "red";
+    }
+    form.reset();
+    social.style.display = 'none';
+  })
+  .catch(err => {
+    response.textContent = "Произошла ошибка, попробуйте повторно позже.";
+    response.style.color = "red";
+  });
+});
+</script>
+</body>
+</html>
